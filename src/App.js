@@ -1,63 +1,93 @@
 // src/App.js
+import { useState } from "react";
 import contacts from "./contacts.json";
 import "./App.css";
-import { useState } from "react";
 
 function App() {
-  const { contactList, setContactList } = useState(contacts);
+  const [displayedContacts, setDisplayedContacts] = useState(
+    contacts.slice(0, 5)
+  );
+
+  const addRandomContact = () => {
+    const remainingContacts = contacts.filter(
+      (contact) => !displayedContacts.includes(contact)
+    );
+    const randomContact =
+      remainingContacts[Math.floor(Math.random() * remainingContacts.length)];
+    setDisplayedContacts([...displayedContacts, randomContact]);
+  };
+  const sortByName = () => {
+    const sortedContacts = [...displayedContacts].sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+    setDisplayedContacts(sortedContacts);
+  };
+
+  const deleteContact = contactId =>{
+const filterContact = displayedContacts.filter(contact =>{
+  return contact.id !== contactId
+})
+setDisplayedContacts(filterContact)
+  }
+
+  const sortNum = () => {
+    const sortedContacts = [...displayedContacts].sort((a, b) => {
+      // Check if the popularity property exists before trying to access it
+      if (a.popularity && b.popularity) {
+        return b.popularity.toFixed(2) - a.popularity.toFixed(2);
+      }
+      // If one or both of the contacts don't have a popularity property, treat them as equal
+      return 0;
+    });
+    setDisplayedContacts(sortedContacts);
+  };
+
   return (
     <div className="App">
       <div>
         <h2>IronContacts</h2>
         <table>
-          <tr>
-            <td>
-              <h3>Picture</h3>
-            </td>
-            <td>
-              <h3>Name</h3>
-            </td>
-            <td>
-              <h3>Popularity</h3>
-            </td>
-            <td>
-              <h3>Won Oscar</h3>
-            </td>
-            <td>
-              <h3>Won Emmy</h3>
-            </td>
-          </tr>
-          {contacts
-            .map((contact) => {
-              return (
-                <tr key={contact.id} className="contact">
-                  <td>
-                    <img
-                      src={contact.pictureUrl}
-                      alt="contact"
-                      height="80px"
-                      width="60ps"
-                    ></img>
-                  </td>
-                  <td>
-                    <p>{contact.name}</p>
-                  </td>
-                  <td>
-                    <p>{contact.popularity}</p>
-                  </td>
-                  <td>
-                    <p>{contact.wonOscar ? "Tropy" : ""}</p>
-                  </td>
-                  <td>
-                    <p>{contact.wonEmmy ? "Tropy" : ""}</p>
-                  </td>
-                </tr>
-              );
-            })
-            .slice(0, 5)}
+          <thead>
+            <tr>
+              <th>Picture</th>
+              <th>Name</th>
+              <th>Popularity</th>
+              <th>Won Oscar</th>
+              <th>Won Emmy</th>
+            </tr>
+          </thead>
+          <tbody>
+            {displayedContacts.map((contact) => (
+              <tr key={contact.id}>
+                <td>
+                  <img
+                    src={contact.pictureUrl}
+                    alt={contact.name}
+                    height="80"
+                    width="60"
+                  />
+                </td>
+                <td>{contact.name}</td>
+                <td>{contact.popularity.toFixed(2)}</td>
+                <td>{contact.wonOscar ? "🏆" : ""}</td>
+                <td>{contact.wonEmmy ? "🏆" : ""}</td>
+                <td><button className="delete-btn" onClick={()=>deleteContact(contact.id)}>Delete</button></td>
+              </tr>
+            ))}
+          </tbody>
         </table>
+        <button className="btn-random" onClick={addRandomContact}>
+          Add Random Contact
+        </button>
+        <button className="abc-btn" onClick={sortByName}>
+          Sort by name
+        </button>
+        <button className="num-btn" onClick={sortNum}>
+          Sort by popularity
+        </button>
       </div>
     </div>
   );
 }
+
 export default App;
